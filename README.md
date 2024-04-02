@@ -36,4 +36,5 @@ In the context of menstrual education where users are likely to enter sensitive 
 
 1. Type a username into the form in the login page.
 2. You will then be redirected to a page where you can create, view, join or leave lobbies.
+
 Note: Each new tab created while the server is running spawns a different player. Any updates to lobbies are displayed live to all players.
