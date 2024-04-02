@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Username</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Mono&family=Indie+Flower&family=Lobster&family=Permanent+Marker&family=Press+Start+2P&display=swap" 
+rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background-image: url('login.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .login-container {
+            text-align: center;
+            padding: 20px;           
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+
+        .login-container input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px; /* Spacing between input and button */
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            display: block; /* Makes it a block element */
+            margin-left: auto; /* Together with margin-right centers the block */
+            margin-right: auto;
+        }
+        .login-container button {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(64, 12, 136);
+            color: #ffffff;
+            cursor: pointer;
+            display: block; /* Makes it a block element */
+            margin-left: auto; /* Together with margin-right centers the block */
+            margin-right: auto;
+        }
+        .login-container button:hover {
+            background-color: black;
+        }
+
+        .titulo-principal {
+            max-width: 1000px;
+            text-align: center;
+            margin: 90px;
+            color: white;
+            font-family: 'Press Start 2P'
+        }
+        .titulo-principal:after {
+            content: "|";
+            margin-left: 5px;
+            opacity: 1;
+            animation: pisca 0.7s infinite;
+        }
+
+        @keyframes pisca {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            }
+
+    </style>
+</head>
+<body>
+    <h1 class="titulo-principal">Welcome to game lobby</h1>
+    <div class="login-container">
+        <h2>Please enter your username</h2>
+        <input type="text" id="usernameInput" placeholder="Username">
+        <button id="submitUsername">Submit</button>
+    </div>
+
+    <script>
+        const socket = io('http://localhost:4000'); // Ensure this matches your server
+
+        document.getElementById('submitUsername').onclick = function() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (username) {
+                socket.emit('registerUsername', username);
+            } else {
+                alert("Username cannot be empty.");
+            }
+        };
+
+        socket.on('usernameTaken', (username) => {
+            alert("This username is already taken.");
+        });
+
+        socket.on('usernameRegistered', (username) => {
+            sessionStorage.setItem('username', username);
+            window.location.href = '/main.html';
+        });
+
+        function typeWrite(elemento){
+            const textoArray = elemento.innerHTML.split('');
+            elemento.innerHTML = ' ';
+            textoArray.forEach(function(letra, i){   
+            
+            setTimeout(function(){
+                elemento.innerHTML += letra;
+            }, 100 * i)
+
+        });
+        }
+        const titulo = document.querySelector('.titulo-principal');
+        typeWrite(titulo);
+        document.getElementsByTagName("h1")[0].style.fontSize = "2.5vw"
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #282c34;
+        color: white;
+        text-align: center; /* Centers the text */
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    form, #lobbies {
+        margin: 20px auto;
+        width: 90%;
+        max-width: 600px;
+    }
+
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+    }
+
+    button {
+        background-color: #61dafb;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background-color: #36a9e1;
+    }
+
+    #lobbies div {
+        background-color: #5e81d5;
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    #lobbies h3 {
+        margin-top: 0;
+    }
+</style>

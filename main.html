@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background-image: url('main.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        input, textarea, button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #cccccc;
+
+        }
+
+        button {
+            background-color: rgb(64, 12, 136);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: black;
+        }
+
+        .lobby-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Creates a 3-column grid */
+            gap: 10px; /* Spacing between grid items */
+            padding: 0;
+            width: 100%; /* Adjust width as necessary */
+            max-width: 1000px; /* Or any max-width you prefer */
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .lobby-item {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .title {
+            margin: 20px;
+            color: #ffffff;
+            font-family: 'Press Start 2P', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Welcome <span id="usernameTitle">User</span></h1>
+    <div class="container" id="lobby-container">
+        <input type="text" id="lobbyName" placeholder="Lobby Name" required>
+        <input type="number" id="lobbyCapacity" placeholder="Lobby Capacity" min="1" required>
+        <textarea id="lobbyDescription" placeholder="Lobby Description" maxlength="200"></textarea>
+        <button onclick="createLobby()">Create Lobby</button>
+    </div>
+    <div id="lobbies" class="lobby-grid"></div>
+
+    <script>
+        const socket = io('http://localhost:4000');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const username = sessionStorage.getItem('username') || 'User';
+            document.getElementById('usernameTitle').textContent = username;
+        });
+
+        socket.on('updateLobbies', (lobbies) => {
+            const lobbiesGridElement = document.getElementById('lobbies');
+            lobbiesGridElement.innerHTML = '';
+
+            lobbies.forEach(lobby => {
+                const occupancy = `${lobby.users.length}/${lobby.capacity}`;
+                const lobbyDiv = document.createElement('div');
+                lobbyDiv.classList.add('lobby-item');
+                lobbyDiv.innerHTML = `
+                    <strong>Lobby:</strong> ${lobby.name}<br>
+                    <strong>Capacity:</strong> ${occupancy}<br>
+                    <strong>Description:</strong> ${lobby.description}<br>
+                    <strong>Users:</strong> ${lobby.users.map(u => u.username).join(', ')}<br>`;
+
+                if (lobby.gameStarted) {
+                    lobbyDiv.innerHTML += `<span style="color: blue;">FULL. Game Started!</span>`;
+                    lobbyDiv.classList.add('lobby-full');
+                } else {
+                    lobbyDiv.innerHTML += `<button onclick="joinLobby('${lobby.id}')">Join</button>`;
+                }
+
+                lobbyDiv.innerHTML += `<button onclick="leaveLobby('${lobby.id}')">Leave</button>`;
+                lobbiesGridElement.appendChild(lobbyDiv);
+            });
+        });
+
+        function createLobby() {
+            const lobbyName = document.getElementById('lobbyName').value;
+            const lobbyCapacity = document.getElementById('lobbyCapacity').value;
+            const lobbyDescription = document.getElementById('lobbyDescription').value;
+            const username = sessionStorage.getItem('username');
+
+            if (lobbyName && lobbyCapacity > 0 && lobbyDescription) {
+                socket.emit('createLobby', {
+                    name: lobbyName,
+                    capacity: parseInt(lobbyCapacity, 10),
+                    description: lobbyDescription,
+                    username: username
+                });
+            } else {
+                alert("Please fill all fields correctly.");
+            }
+        }
+
+        function joinLobby(lobbyId) {
+            const username = sessionStorage.getItem('username');
+            socket.emit('joinLobby', { lobbyId, username });
+        }
+
+        function leaveLobby(lobbyId) {
+            socket.emit('leaveLobby', { lobbyId });
+        }
+    </script>
+</body>
+</html>
